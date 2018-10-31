@@ -26,10 +26,8 @@ import tensorflow as tf
 import sys
 import matplotlib.pyplot as plt
 STANDARD_COLORS = [
-     'Lime','SkyBlue', 'SlateBlue',
-    'SlateGray', 'SlateGrey', 'Snow', 'SpringGreen', 'SteelBlue', 'GreenYellow',
-    'Teal', 'Thistle', 'Tomato', 'Turquoise', 'Violet', 'Wheat', 'White',
-    'WhiteSmoke', 'Yellow', 'YellowGreen'
+     'Lime','aqua', 'pink'
+
 ]
 
 # This is needed since the notebook is stored in the object_detection folder.
@@ -55,7 +53,7 @@ def test(
 
   # Create a display string (and color) for every box location, group any boxes
   # that correspond to the same location.
-  count=0
+
   box_to_color_map = collections.defaultdict(str)
   if not max_boxes_to_draw:
     max_boxes_to_draw = boxes.shape[0]
@@ -71,15 +69,34 @@ def test(
         else:
           box_to_color_map[box] = STANDARD_COLORS[
               classes[i] % len(STANDARD_COLORS)]
-    count = count + 1
+
   # Draw all boxes onto image.
 
-  if(count>10):
-    for box, color in box_to_color_map.items():
-        ymin, xmin, ymax, xmax = box
-        print((xmin+xmax)/2,(ymin+ymax)/2)
-        plt.scatter((xmin+xmax)/2,(ymin+ymax)/2,c=color,alpha=0.5)
-        count = 0
+
+  for box, color in box_to_color_map.items():
+
+    ymin, xmin, ymax, xmax = box
+    print((xmin+xmax)/2,(ymin+ymax)/2)
+    plt.scatter((xmin+xmax)/2,(ymin+ymax)/2,c=color,alpha=0.5)
+    if((xmax+xmin)/2<0.35):
+        if(STANDARD_COLORS[1]==color):
+            return 1
+        else:
+            return 2
+
+    elif((xmin+xmax)/2>0.35 and (xmin+xmax)/2<0.7):
+        if (STANDARD_COLORS[1] == color):
+            return 3
+        else:
+            return 4
+    else:
+        if (STANDARD_COLORS[1] == color):
+            return 5
+        else:
+            return 6
+
+
+
 # Name of the directory containing the object detection module we're using
 MODEL_NAME = 'inference_graph'
 
@@ -134,17 +151,19 @@ detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
 # Number of objects detected
 num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
-
+d={1:0,2:0,3:0,4:0,5:0,6:0}
 # Initialize webcam feed
-video = cv2.VideoCapture(0)
+video = cv2.VideoCapture(0) #set where webacm
 ret = video.set(3,1280)
 ret = video.set(4,720)
-
+plt.figure()
+count=0
 while(True):
 
     # Acquire frame and expand frame dimensions to have shape: [1, None, None, 3]
     # i.e. a single-column array, where each item in the column has the pixel RGB value
     ret, frame = video.read()
+
     frame_expanded = np.expand_dims(frame, axis=0)
 
     # Perform the actual detection by running the model with the image as input
@@ -162,23 +181,36 @@ while(True):
         use_normalized_coordinates=True,
         line_thickness=8,
         min_score_thresh=0.85)
+    if(count==25):
+        x=test(
+            frame,
+            np.squeeze(boxes),
+            np.squeeze(classes).astype(np.int32),
+            np.squeeze(scores),
+            min_score_thresh=0.85)
 
-    test(
-        frame,
-        np.squeeze(boxes),
-        np.squeeze(classes).astype(np.int32),
-        np.squeeze(scores),
-        min_score_thresh=0.85)
+        if x is None :
+            pass
+        else :
+            d[x] +=1
+        count=0
 
-
+    count += 1
     # All the results have been drawn on the frame, so it's time to display it.
     cv2.imshow('Object detector', frame)
 
     # Press 'q' to quit
     if cv2.waitKey(1) == ord('q'):
         break
+print(d)
 plt.xlim((0.1,1.0))
 plt.ylim((1.0,0.1))
+plt.figure()
+plt_x=np.arange(len(d))+1
+plt_y=np.array([d[1],d[2],d[3],d[4],d[5],d[6]])
+plt.bar(plt_x,plt_y,color=['aqua', 'pink'])
+labels=['Male1','Female1','Male2','Female2','Male3','Female3']
+plt.xticks(plt_x,labels)
 plt.show()
 # Clean up
 video.release()
