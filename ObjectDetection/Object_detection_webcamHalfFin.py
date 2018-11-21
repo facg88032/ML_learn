@@ -26,7 +26,7 @@ import tensorflow as tf
 import sys
 import matplotlib.pyplot as plt
 STANDARD_COLORS = [
-     'Lime','SkyBlue', 'SlateBlue'
+     'Lime','aqua', 'pink'
 
 ]
 
@@ -42,16 +42,13 @@ def test(
     boxes,
     classes,
     scores,
-
-
     max_boxes_to_draw=20,
     min_score_thresh=.5,
-    agnostic_mode=False,
 
-    groundtruth_box_visualization_color='black',
+
     ):
 
-  # Create a display string (and color) for every box location, group any boxes
+  # Create scatter and decide location
   # that correspond to the same location.
 
   box_to_color_map = collections.defaultdict(str)
@@ -61,39 +58,21 @@ def test(
     if scores is None or scores[i] > min_score_thresh:
       box = tuple(boxes[i].tolist())
       if scores is None:
-        box_to_color_map[box] = groundtruth_box_visualization_color
+        print(scores)
+        box_to_color_map[box] = 'black'
       else:
-
-        if agnostic_mode:
-          box_to_color_map[box] = 'DarkOrange'
-        else:
-          box_to_color_map[box] = STANDARD_COLORS[
+        box_to_color_map[box] = STANDARD_COLORS[
               classes[i] % len(STANDARD_COLORS)]
 
   # Draw all boxes onto image.
 
 
   for box, color in box_to_color_map.items():
-
     ymin, xmin, ymax, xmax = box
-    print((xmin+xmax)/2,(ymin+ymax)/2)
-    plt.scatter((xmin+xmax)/2,(ymin+ymax)/2,c=color,alpha=0.5)
-    if((xmax+xmin)/2>0.7):
-        if(STANDARD_COLORS[1]==color):
-            return 1
-        else:
-            return 2
+    Xc=(xmin+xmax)/2
+    Yc=(ymin+ymax)/2
 
-    elif((xmin+xmax)/2>0.35 and (xmin+xmax)/2<0.7):
-        if (STANDARD_COLORS[1] == color):
-            return 3
-        else:
-            return 4
-    else:
-        if (STANDARD_COLORS[1] == color):
-            return 5
-        else:
-            return 6
+    return Xc,Yc,color
 
 
 
@@ -153,10 +132,13 @@ num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
 d={1:0,2:0,3:0,4:0,5:0,6:0}
 # Initialize webcam feed
-video = cv2.VideoCapture(1)
+video = cv2.VideoCapture(1) #set where webacm
 ret = video.set(4,1280)
 ret = video.set(5,720)
 plt.figure()
+count=0
+XcTest=0
+YcTest=0
 while(True):
 
     # Acquire frame and expand frame dimensions to have shape: [1, None, None, 3]
@@ -181,17 +163,45 @@ while(True):
         line_thickness=8,
         min_score_thresh=0.85)
 
-    x=test(
+    z=test(
         frame,
         np.squeeze(boxes),
         np.squeeze(classes).astype(np.int32),
         np.squeeze(scores),
         min_score_thresh=0.85)
 
-    if x is None :
+    if z is None:
         pass
-    else :
-        d[x] +=1
+    else:
+        x,y,color=z
+
+        if ((x- XcTest) > 0.2 or (x- XcTest) < -0.2):
+            XcTest=x
+            YcTest=y
+            print(x, y)
+            plt.scatter(x, y, c=color, alpha=0.5)
+            if (x < 0.35):
+                if (STANDARD_COLORS[1] == color):
+                    bar_count= 1
+                else:
+                    bar_count = 2
+
+            elif (x > 0.35 and x < 0.7):
+                if (STANDARD_COLORS[1] == color):
+                    bar_count = 3
+                else:
+                    bar_count = 4
+            else:
+                if (STANDARD_COLORS[1] == color):
+                    bar_count = 5
+                else:
+                    bar_count = 6
+            d[bar_count] += 1
+
+
+
+
+
     # All the results have been drawn on the frame, so it's time to display it.
     cv2.imshow('Object detector', frame)
 
@@ -204,9 +214,10 @@ plt.ylim((1.0,0.1))
 plt.figure()
 plt_x=np.arange(len(d))+1
 plt_y=np.array([d[1],d[2],d[3],d[4],d[5],d[6]])
-plt.bar(plt_x,plt_y)
+plt.bar(plt_x,plt_y,color=['aqua', 'pink'])
+labels=['MaleR','FemaleR','MaleC','FemaleC','MaleL','FemaleL']
+plt.xticks(plt_x,labels)
 plt.show()
-# Clean up
+#Clean up
 video.release()
 cv2.destroyAllWindows()
-
