@@ -1,0 +1,26 @@
+<annotation>
+	<folder>test</folder>
+	<filename>1020.jpg</filename>
+	<path>D:\ImageMake\images\test\1020.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>135</width>
+		<height>94</height>
+		<depth>1</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>male</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>26</xmin>
+			<ymin>3</ymin>
+			<xmax>110</xmax>
+			<ymax>89</ymax>
+		</bndbox>
+	</object>
+</annotation>

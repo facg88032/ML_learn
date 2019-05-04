@@ -1,0 +1,26 @@
+<annotation>
+	<folder>train</folder>
+	<filename>1220.jpg</filename>
+	<path>D:\ImageMake\images\train\1220.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>92</width>
+		<height>138</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>female</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>37</xmin>
+			<ymin>12</ymin>
+			<xmax>58</xmax>
+			<ymax>34</ymax>
+		</bndbox>
+	</object>
+</annotation>
