@@ -1,7 +1,3 @@
-ML_learn
-===
-ML_learn is some simply manual model , Not use any tools .
-
 Object detection
 ===
 Object detection use [Tensorflow Objection Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) to try various topic(face,poker,star....) .
